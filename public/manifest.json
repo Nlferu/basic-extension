@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "version": "0.0.1",
+  "name": "AI Buddy",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": ["scripting"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "icons": {
+    "32": "asts.png"
+  }
+}
