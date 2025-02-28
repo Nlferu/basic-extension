@@ -1,67 +1,50 @@
-const optionsBox = () => {
-  // Create the button box div
-  const rootElement = document.createElement('div')
-  rootElement.id = 'button-box'
-  rootElement.style.position = 'fixed'
-  rootElement.style.bottom = '20px'
-  rootElement.style.right = '20px'
-  rootElement.style.zIndex = '9999'
-  rootElement.style.padding = '10px'
-  rootElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
-  rootElement.style.color = 'white'
-  rootElement.style.borderRadius = '8px'
+import cssText from 'data-text:~style.css'
+import type { PlasmoCSConfig } from 'plasmo'
 
-  // Button box content (three buttons)
-  const buttonBox = `
-     <button class="p-2 m-2 bg-amber-600 rounded">Button 1</button>
-     <button class="p-2 m-2 bg-amber-600 rounded">Button x</button>
-     <button class="p-2 m-2 bg-amber-600 rounded">Button 3</button>
-   `
+import { ColorChanger } from '~features/color-changer'
+import { CountButton } from '~features/count-button'
 
-  // Inject the button box content into the div
-  rootElement.innerHTML = buttonBox
-
-  // Append the button box to the body of the webpage
-  document.body.appendChild(rootElement)
+export const config: PlasmoCSConfig = {
+  matches: ['<all_urls>']
 }
 
-optionsBox()
+/**
+ * Generates a style element with adjusted CSS to work correctly within a Shadow DOM.
+ *
+ * Tailwind CSS relies on `rem` units, which are based on the root font size (typically defined on the <html>
+ * or <body> element). However, in a Shadow DOM (as used by Plasmo), there is no native root element, so the
+ * rem values would reference the actual page's root font size—often leading to sizing inconsistencies.
+ *
+ * To address this, we:
+ * 1. Replace the `:root` selector with `:host(plasmo-csui)` to properly scope the styles within the Shadow DOM.
+ * 2. Convert all `rem` units to pixel values using a fixed base font size, ensuring consistent styling
+ *    regardless of the host page's font size.
+ */
+export const getStyle = (): HTMLStyleElement => {
+  const baseFontSize = 16
 
-/** @dev To get below working we need to add `format: 'iife'` in vite.config.ts */
-// import React from 'react'
-// import ReactDOM from 'react-dom/client' // Import from 'react-dom/client' for React 18
+  let updatedCssText = cssText.replaceAll(':root', ':host(plasmo-csui)')
+  const remRegex = /([\d.]+)rem/g
+  updatedCssText = updatedCssText.replace(remRegex, (match, remValue) => {
+    const pixelsValue = parseFloat(remValue) * baseFontSize
 
-// const OptionsBox: React.FC = () => {
-//   return (
-//     <div
-//       id="button-box"
-//       style={{
-//         position: 'fixed',
-//         bottom: '20px',
-//         right: '20px',
-//         zIndex: 9999,
-//         padding: '10px',
-//         backgroundColor: 'rgba(0, 0, 0, 0.7)',
-//         color: 'white',
-//         borderRadius: '8px',
-//       }}
-//     >
-//       <button className="p-2 m-2 bg-amber-600 rounded">Button 1</button>
-//       <button className="p-2 m-2 bg-amber-600 rounded">Button x</button>
-//       <button className="p-2 m-2 bg-amber-600 rounded">Button 3</button>
-//     </div>
-//   )
-// }
+    return `${pixelsValue}px`
+  })
 
-// // This function runs when the content script is called
-// const renderOptionsBox = () => {
-//   const rootElement = document.createElement('div')
-//   document.body.appendChild(rootElement)
+  const styleElement = document.createElement('style')
 
-//   // Use createRoot instead of render
-//   const root = ReactDOM.createRoot(rootElement)
-//   root.render(<OptionsBox />)
-// }
+  styleElement.textContent = updatedCssText
 
-// // Call the function to render the component
-// renderOptionsBox()
+  return styleElement
+}
+
+const PlasmoOverlay = () => {
+  return (
+    <div className="plasmo-z-50 plasmo-flex plasmo-flex-col plasmo-fixed plasmo-top-32 plasmo-right-8">
+      <CountButton />
+      <ColorChanger />
+    </div>
+  )
+}
+
+export default PlasmoOverlay
