@@ -1,5 +1,11 @@
 This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
 
+## Created With
+
+```bash
+yarn create plasmo --with-tailwindcss
+```
+
 ## Getting Started
 
 First, run the development server:
